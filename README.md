@@ -2,7 +2,6 @@
 
 Aplicação web full stack para gerenciamento de tarefas, com API REST em **.NET 9**, interface em **React + TypeScript**, persistência em **PostgreSQL**, autenticação com perfis de acesso e implantação via **Docker** e **Vercel**.
 
-Desenvolvida como desafio técnico para a vaga de Analista de Desenvolvimento.
 
 ---
 
@@ -34,6 +33,18 @@ Desenvolvida como desafio técnico para a vaga de Analista de Desenvolvimento.
 O sistema permite que cada usuário cadastre, acompanhe e conclua suas tarefas, com controle de status, prioridade e prazo. Administradores têm visão consolidada das tarefas de todos os usuários.
 
 O projeto atende aos requisitos do desafio (CRUD, controle de status, persistência, integração front/back, Swagger, tratamento de erros, documentação) e inclui os diferenciais: **Docker, TypeScript, autenticação e autorização, filtros/pesquisa, testes automatizados e publicação online**.
+
+### Ambiente publicado
+
+| Recurso | Link |
+|---|---|
+| Aplicação | https://teste-tecnico-omega.vercel.app |
+| Swagger (API) | https://taskmanager-api-zeyi.onrender.com/swagger |
+| Verificação de saúde da API | https://taskmanager-api-zeyi.onrender.com/health |
+
+Contas de demonstração: `admin@empresa.com` / `Admin@123` (Administrador) e `usuario@empresa.com` / `User@123` (Usuário).
+
+> **Observação.** O ambiente utiliza planos gratuitos de hospedagem. Após um período de inatividade, a API pode levar até cerca de um minuto para responder à primeira requisição. Caso o primeiro login falhe, aguarde alguns instantes e tente novamente.
 
 ## 2. Funcionalidades
 
@@ -182,13 +193,15 @@ Topologia adotada, com cada peça na plataforma mais simples para ela:
 | Frontend | Vercel | Site estático Vite (pasta `frontend`) |
 | API .NET | Render | Container Docker, a partir de `backend/Dockerfile` |
 | Banco | Neon | PostgreSQL gerenciado |
-| Login | Firebase Authentication | Ver [seção 8](#8-configuração-do-firebase-authentication-opcional) |
+| Login | Identity + JWT (na própria API) | Sem serviço externo. O Firebase é opcional ([seção 8](#8-configuração-do-firebase-authentication-opcional)) |
 
 **Por que o banco não fica no Render?** O Postgres gratuito do Render é removido após um período (a documentação do Render indica 30 dias). Como o link pode ser aberto por um avaliador dias depois da entrega, o banco fica no Neon, cujo plano gratuito não tem essa expiração. **Confira os limites atuais de cada plano antes de publicar**, pois mudam com frequência.
 
-### 9.1 Pré-requisito: Firebase
+### 9.1 Autenticação
 
-Conclua a [seção 8](#8-configuração-do-firebase-authentication-opcional) e anote `apiKey`, `authDomain`, `projectId`, `appId` e o e-mail que será Admin. Para publicar sem Firebase, use `Auth__Provider=Local` na API e `VITE_AUTH_PROVIDER=local` no frontend.
+A publicação usa o **modo Local** (Identity + JWT), que roda dentro da própria API e não exige nenhuma conta externa. As contas de demonstração (seção 5.1) são criadas na primeira inicialização, pois `SeedData__Enabled=true`. Para um ambiente real, defina `SeedData__Enabled=false` e troque as senhas.
+
+O modo Firebase é opcional e não é necessário para publicar (veja a [seção 8](#8-configuração-do-firebase-authentication-opcional)).
 
 ### 9.2 Banco de dados (Neon)
 
@@ -201,7 +214,7 @@ Conclua a [seção 8](#8-configuração-do-firebase-authentication-opcional) e a
 **Opção A: Blueprint (recomendada).** O repositório contém `render.yaml`.
 
 1. No Render, **New > Blueprint** e selecione o repositório.
-2. Preencha as variáveis solicitadas: `DATABASE_URL`, `Firebase__ProjectId` e `Firebase__AdminEmails__0`. O `Jwt__Key` é gerado automaticamente.
+2. Preencha a variável solicitada: `DATABASE_URL` (connection string do Neon). O `Jwt__Key` é gerado automaticamente.
 3. Confirme e aguarde o build.
 
 **Opção B: manual.** **New > Web Service**, conecte o repositório e configure:
@@ -222,15 +235,15 @@ Variáveis de ambiente: as da [seção 10](#10-variáveis-de-ambiente). O Render
 
 1. Edite `frontend/vercel.json` e troque `https://SEU-SERVICO-API.onrender.com` pela URL real da API. Faça commit e push.
 2. Na Vercel, **Add New > Project**, importe o repositório e defina **Root Directory** como `frontend` (o Vite é detectado automaticamente).
-3. Variáveis: `VITE_AUTH_PROVIDER=firebase` e as quatro `VITE_FIREBASE_*`.
+3. Nenhuma variável é necessária: o padrão do frontend já é o login local.
 4. Faça o deploy.
 
 O `vercel.json` do frontend contém dois rewrites: `/api/*` para a API no Render e um *fallback* para `index.html`, necessário às rotas do React Router.
 
 ### 9.5 Pós-publicação
 
-1. No Firebase, em **Authentication > Configurações > Domínios autorizados**, adicione o domínio da Vercel.
-2. Acesse o site, crie uma conta com o e-mail definido como Admin e valide: login, criação, edição, troca de status, exclusão e busca.
+1. Acesse o site e entre com `admin@empresa.com` / `Admin@123` e com `usuario@empresa.com` / `User@123`.
+2. Valide: login, criação, edição, troca de status, exclusão, busca e o isolamento entre usuários.
 3. Registre as URLs publicadas neste README e no e-mail de entrega.
 
 > **Atenção ao primeiro acesso.** No plano gratuito, o serviço do Render "dorme" após cerca de 15 minutos sem requisições e leva até aproximadamente um minuto para acordar. Antes de uma demonstração, abra `/health` para aquecê-lo.
@@ -395,15 +408,14 @@ Itens que **não** podem ser resolvidos pelo código e dependem de você.
 ### Para publicar (diferencial)
 
 - [ ] Criar o projeto no **Neon** e copiar a connection string (`DATABASE_URL`).
-- [ ] Criar o serviço da API no **Render** (Blueprint com `render.yaml` ou manual) e preencher `DATABASE_URL`, `Firebase__ProjectId` e `Firebase__AdminEmails__0`.
+- [ ] Criar o serviço da API no **Render** (Blueprint com `render.yaml` ou manual) e preencher `DATABASE_URL`.
 - [ ] Confirmar `/health` e `/swagger` na URL do Render.
 - [ ] Copiar a URL da API para `frontend/vercel.json` (hoje há o marcador `SEU-SERVICO-API`), commitar e subir.
-- [ ] Criar o projeto do **frontend na Vercel** (Root Directory `frontend`) com as variáveis `VITE_*`.
-- [ ] Adicionar o domínio da Vercel em **Domínios autorizados** no Firebase.
+- [ ] Criar o projeto do **frontend na Vercel** (Root Directory `frontend`).
 - [ ] Testar o ambiente publicado de ponta a ponta e registrar as URLs no README e no e-mail de entrega.
 - [ ] Conferir os limites atuais dos planos gratuitos (Render, Neon, Vercel) e lembrar do tempo de despertar da API.
 
-### Para usar o Firebase (opcional)
+### Para usar o Firebase (opcional, fora do escopo do deploy padrão)
 
 - [ ] Criar o projeto no Firebase, habilitar e-mail/senha e registrar o app Web.
 - [ ] Preencher as variáveis na API e no frontend (e reconstruir o frontend, pois `VITE_*` entram no build).
