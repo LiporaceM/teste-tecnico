@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert, Button, Form, Input, Tabs } from 'antd';
 import { useAuth } from '../AuthContext';
 import { getErrorMessage } from '../api';
+import { AUTH_PROVIDER } from '../firebase';
 
 interface Values { fullName?: string; email: string; password: string }
 
@@ -62,7 +63,7 @@ export default function LoginPage() {
             </Button>
           </Form>
 
-          {mode === 'login' && (
+          {mode === 'login' && AUTH_PROVIDER === 'local' && (
             <div className="login__hint">
               Contas de demonstração:<br />
               <b>admin@empresa.com</b> / Admin@123 (vê todas as tarefas)<br />

@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import type { ReactElement } from 'react';
+import { Spin } from 'antd';
 import { useAuth } from './AuthContext';
 import LoginPage from './pages/LoginPage';
 import TasksPage from './pages/TasksPage';
@@ -10,7 +11,16 @@ function RequireAuth({ children }: { children: ReactElement }) {
 }
 
 export default function App() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'grid', placeItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />

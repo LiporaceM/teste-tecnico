@@ -165,7 +165,7 @@ export default function TasksPage() {
         <span className="app-header__title">Gestor de Tarefas</span>
         <span className="app-header__user">
           {user?.fullName} ({isAdmin ? 'Administrador' : 'Usuário'})
-          <Button size="small" ghost icon={<LogoutOutlined />} onClick={logout}>Sair</Button>
+          <Button size="small" ghost icon={<LogoutOutlined />} onClick={() => void logout()}>Sair</Button>
         </span>
       </header>
 

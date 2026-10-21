@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: taskmanager-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: Jwt__Key
+        generateValue: true
+      - key: Auth__Provider
+        value: Local
+      - key: SeedData__Enabled
+        value: "true"

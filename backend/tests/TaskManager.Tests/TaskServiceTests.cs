@@ -1,3 +1,4 @@
+using Xunit;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Api.Data;
@@ -6,8 +7,6 @@ using TaskManager.Api.Exceptions;
 using TaskManager.Api.Models;
 using TaskManager.Api.Services;
 using TaskManager.Api.Validators;
-using Xunit;
-
 
 namespace TaskManager.Tests;
 

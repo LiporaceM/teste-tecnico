@@ -22,6 +22,8 @@ public static class DbInitializer
             }
         }
 
+        // No modo Firebase os usuários vêm do Firebase; os dados de demonstração locais não se aplicam.
+        if (string.Equals(config["Auth:Provider"], "Firebase", StringComparison.OrdinalIgnoreCase)) return;
         if (!config.GetValue("SeedData:Enabled", true)) return;
 
         var roles = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();

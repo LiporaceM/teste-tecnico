@@ -3,6 +3,8 @@ obj/
 node_modules/
 dist/
 .env
+.env.local
+.vercel/
 .vs/
 .idea/
 *.user

@@ -1,0 +1,14 @@
+# Usado pela Vercel (Container Runtime). Para Docker local/Compose, use o arquivo "Dockerfile".
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+COPY src/TaskManager.Api/TaskManager.Api.csproj src/TaskManager.Api/
+RUN dotnet restore src/TaskManager.Api/TaskManager.Api.csproj
+COPY src/TaskManager.Api/ src/TaskManager.Api/
+RUN dotnet publish src/TaskManager.Api/TaskManager.Api.csproj -c Release -o /app/publish --no-restore /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+WORKDIR /app
+COPY --from=build /app/publish .
+# Defina também PORT=8080 nas variáveis de ambiente do projeto na Vercel.
+ENV PORT=8080 ASPNETCORE_HTTP_PORTS=8080 DOTNET_EnableDiagnostics=0
+ENTRYPOINT ["dotnet", "TaskManager.Api.dll"]
